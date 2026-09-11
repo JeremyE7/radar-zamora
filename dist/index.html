@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1726">
+  <meta name="description" content="Radar de oportunidades comerciales para proveedores de Zamora Chinchipe.">
+  <title>Radar Zamora</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1726'/%3E%3Cpath d='M15 38h12l7-17 7 28 5-11h5' fill='none' stroke='%23f6c453' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #102033;
+      --muted: #637083;
+      --line: #dce3ea;
+      --canvas: #f3f6f8;
+      --surface: #ffffff;
+      --navy: #0b1726;
+      --navy-2: #15263a;
+      --gold: #f6c453;
+      --gold-deep: #a36d00;
+      --teal: #147d78;
+      --teal-soft: #e7f4f2;
+      --red: #b43d3d;
+      --red-soft: #fbecec;
+      --shadow: 0 16px 45px rgba(19, 35, 53, .08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    button, input, select { font: inherit; }
+    button, a, input, select { outline-offset: 3px; }
+    button { cursor: pointer; }
+    [hidden] { display: none !important; }
+
+    .app-shell { min-height: 100vh; }
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: 250px;
+      background: var(--navy);
+      color: #edf3f8;
+      padding: 26px 18px;
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px 26px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+    }
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      background: var(--gold);
+      color: var(--navy);
+      font-weight: 900;
+      letter-spacing: -.08em;
+    }
+    .brand strong { display: block; font-size: 1.05rem; }
+    .brand span { color: #9eb0c2; font-size: .78rem; }
+    .side-nav { display: grid; gap: 6px; margin-top: 24px; }
+    .nav-button {
+      width: 100%;
+      min-height: 44px;
+      border: 0;
+      border-radius: 11px;
+      padding: 10px 12px;
+      background: transparent;
+      color: #bac8d5;
+      text-align: left;
+      font-weight: 650;
+    }
+    .nav-button:hover { background: rgba(255,255,255,.07); color: white; }
+    .nav-button.active { background: #20344b; color: white; }
+    .nav-button.active::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 10px; border-radius: 50%; background: var(--gold); vertical-align: 1px; }
+    .profile-mini {
+      margin-top: auto;
+      border-top: 1px solid rgba(255,255,255,.12);
+      padding: 18px 8px 0;
+    }
+    .profile-mini strong { display: block; font-size: .9rem; }
+    .profile-mini span { color: #9eb0c2; font-size: .78rem; }
+    .main { margin-left: 250px; min-height: 100vh; }
+    .topbar {
+      min-height: 76px;
+      padding: 0 38px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.93);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 8;
+      backdrop-filter: blur(12px);
+    }
+    .topbar-title { font-size: .93rem; color: var(--muted); }
+    .topbar-title strong { color: var(--ink); }
+    .demo-flag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: #fff5d8;
+      color: #765000;
+      font-size: .78rem;
+      font-weight: 750;
+      border: 1px solid #f1d895;
+    }
+    .content { max-width: 1260px; margin: 0 auto; padding: 34px 38px 70px; }
+    .heading-row { display: flex; justify-content: space-between; gap: 24px; align-items: flex-end; margin-bottom: 26px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 7px; font-size: clamp(1.8rem, 3vw, 2.5rem); line-height: 1.1; letter-spacing: -.04em; }
+    .lead { margin: 0; color: var(--muted); max-width: 680px; }
+    .summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .summary-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 17px 18px; box-shadow: 0 8px 24px rgba(19,35,53,.04); }
+    .summary-label { color: var(--muted); font-size: .83rem; }
+    .summary-value { margin-top: 2px; font-size: 1.55rem; font-weight: 820; letter-spacing: -.04em; }
+    .summary-note { color: var(--teal); font-size: .78rem; font-weight: 700; }
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1.7fr) repeat(2, minmax(150px, .65fr)) minmax(155px, .7fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .input-wrap { position: relative; }
+    .input-wrap input { padding-left: 41px; }
+    .search-glyph { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; font-size: 1.05rem; }
+    input, select {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid #cfd8e1;
+      border-radius: 11px;
+      background: var(--surface);
+      color: var(--ink);
+      padding: 10px 13px;
+    }
+    input:focus, select:focus { border-color: #568c99; box-shadow: 0 0 0 3px rgba(20,125,120,.12); }
+    .results-line { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 16px 2px; color: var(--muted); font-size: .88rem; }
+    .opportunity-list { display: grid; gap: 13px; }
+    .opportunity-card {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 82px minmax(0,1fr) auto;
+      gap: 20px;
+      align-items: center;
+      box-shadow: 0 7px 24px rgba(19,35,53,.04);
+      transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+    .opportunity-card:hover { transform: translateY(-2px); border-color: #b9c6d3; box-shadow: var(--shadow); }
+    .score {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(var(--teal) calc(var(--score) * 1%), #e7ecef 0);
+      position: relative;
+    }
+    .score::after { content: ""; position: absolute; inset: 7px; background: white; border-radius: 50%; }
+    .score strong { z-index: 1; font-size: 1.05rem; }
+    .card-eyebrow { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 5px; }
+    .category { font-size: .76rem; color: var(--gold-deep); font-weight: 780; text-transform: uppercase; letter-spacing: .06em; }
+    .new-badge { padding: 2px 7px; border-radius: 999px; background: var(--teal-soft); color: var(--teal); font-size: .72rem; font-weight: 780; }
+    .opportunity-card h2 { margin: 0 0 5px; font-size: 1.08rem; letter-spacing: -.01em; }
+    .entity { color: var(--muted); font-size: .88rem; }
+    .card-meta { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 11px; font-size: .84rem; }
+    .card-meta strong { font-weight: 760; }
+    .deadline { color: var(--red); font-weight: 760; }
+    .card-actions { display: flex; gap: 8px; align-items: center; }
+    .button {
+      min-height: 42px;
+      border-radius: 10px;
+      padding: 9px 14px;
+      border: 1px solid #cbd5df;
+      background: white;
+      color: var(--ink);
+      font-weight: 720;
+      white-space: nowrap;
+    }
+    .button:hover { background: #f5f7f9; }
+    .button.primary { border-color: var(--navy); background: var(--navy); color: white; }
+    .button.primary:hover { background: var(--navy-2); }
+    .button.gold { border-color: var(--gold); background: var(--gold); color: var(--navy); }
+    .button.icon { width: 43px; padding: 0; font-size: 1.2rem; }
+    .button.saved { color: var(--gold-deep); background: #fff8e7; border-color: #efd48e; }
+    .empty { text-align: center; padding: 70px 20px; background: white; border: 1px dashed #c9d3dc; border-radius: var(--radius); }
+    .empty h2 { margin-bottom: 6px; }
+    .empty p { color: var(--muted); }
+
+    .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); }
+    .profile-layout { display: grid; grid-template-columns: minmax(0,1.35fr) minmax(280px,.65fr); gap: 20px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+    label.field { display: grid; gap: 6px; color: #425166; font-weight: 690; font-size: .88rem; }
+    .field.full { grid-column: 1 / -1; }
+    .checks { display: flex; flex-wrap: wrap; gap: 9px; }
+    .check-chip { position: relative; }
+    .check-chip input { position: absolute; opacity: 0; pointer-events: none; }
+    .check-chip span { display: block; padding: 8px 11px; border: 1px solid #cfd8e1; border-radius: 999px; background: white; font-size: .84rem; cursor: pointer; }
+    .check-chip input:checked + span { background: var(--navy); color: white; border-color: var(--navy); }
+    .check-chip input:focus-visible + span { outline: 3px solid rgba(20,125,120,.25); }
+    .form-actions { margin-top: 22px; display: flex; justify-content: flex-end; gap: 10px; }
+    .info-list { display: grid; gap: 14px; margin-top: 18px; }
+    .info-item { padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+    .info-item:last-child { border: 0; padding-bottom: 0; }
+    .info-item strong { display: block; margin-bottom: 2px; }
+    .info-item span { color: var(--muted); font-size: .86rem; }
+    .progress { height: 8px; border-radius: 99px; background: #e8edf1; overflow: hidden; margin-top: 10px; }
+    .progress span { display: block; height: 100%; width: 72%; background: var(--teal); }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      background: rgba(5,15,26,.63);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+    .modal {
+      width: min(780px, 100%);
+      max-height: min(88vh, 850px);
+      overflow: auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.28);
+    }
+    .modal-head { position: sticky; top: 0; z-index: 1; display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; padding: 23px 25px 18px; border-bottom: 1px solid var(--line); background: white; }
+    .modal-head h2 { margin-bottom: 4px; font-size: 1.28rem; }
+    .modal-head p { margin: 0; color: var(--muted); font-size: .86rem; }
+    .close { border: 0; background: #eff2f5; border-radius: 50%; width: 40px; height: 40px; font-size: 1.3rem; line-height: 1; }
+    .modal-body { padding: 24px 25px 27px; }
+    .detail-top { display: grid; grid-template-columns: 120px 1fr; gap: 22px; align-items: center; margin-bottom: 24px; }
+    .detail-score { padding: 18px; border-radius: 16px; background: var(--teal-soft); text-align: center; color: var(--teal); }
+    .detail-score strong { display: block; font-size: 1.9rem; letter-spacing: -.05em; }
+    .detail-score span { font-size: .76rem; font-weight: 760; }
+    .detail-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin-bottom: 23px; }
+    .detail-fact { padding: 14px; border-right: 1px solid var(--line); }
+    .detail-fact:last-child { border: 0; }
+    .detail-fact span { display: block; color: var(--muted); font-size: .76rem; }
+    .detail-fact strong { display: block; margin-top: 2px; }
+    .section-title { font-size: .9rem; margin: 23px 0 10px; }
+    .requirement-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+    .requirement-list li { display: flex; align-items: flex-start; gap: 9px; }
+    .requirement-list li::before { content: "✓"; color: var(--teal); font-weight: 850; }
+    .match-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+    .match-item { border-radius: 10px; padding: 10px 12px; background: #f3f7f7; font-size: .84rem; }
+    .match-item.miss { background: var(--red-soft); color: #863232; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
+    .toast { position: fixed; right: 24px; bottom: 24px; z-index: 50; background: var(--navy); color: white; border-radius: 12px; padding: 13px 16px; box-shadow: var(--shadow); max-width: 340px; }
+
+    .mobile-nav { display: none; }
+    @media (max-width: 920px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .topbar { padding: 0 22px; }
+      .content { padding: 26px 22px 90px; }
+      .toolbar { grid-template-columns: 1fr 1fr; }
+      .toolbar .input-wrap { grid-column: 1 / -1; }
+      .opportunity-card { grid-template-columns: 70px minmax(0,1fr); }
+      .score { width: 66px; height: 66px; }
+      .card-actions { grid-column: 1 / -1; justify-content: flex-end; }
+      .profile-layout { grid-template-columns: 1fr; }
+      .mobile-nav { position: fixed; display: grid; grid-template-columns: repeat(3,1fr); inset: auto 0 0; z-index: 20; background: white; border-top: 1px solid var(--line); padding: 8px 8px max(8px, env(safe-area-inset-bottom)); }
+      .mobile-nav button { min-height: 45px; border: 0; background: transparent; color: var(--muted); font-weight: 700; font-size: .8rem; }
+      .mobile-nav button.active { color: var(--ink); background: #f0f3f5; border-radius: 10px; }
+    }
+    @media (max-width: 640px) {
+      .topbar { min-height: 64px; padding: 0 16px; }
+      .topbar-title { display: none; }
+      .content { padding: 22px 14px 90px; }
+      .heading-row { align-items: flex-start; flex-direction: column; }
+      .summary { grid-template-columns: 1fr 1fr; }
+      .summary-card:last-child { grid-column: 1 / -1; }
+      .toolbar { grid-template-columns: 1fr; }
+      .toolbar .input-wrap { grid-column: auto; }
+      .opportunity-card { padding: 16px; gap: 13px; }
+      .card-meta { gap: 8px 12px; }
+      .card-actions .button.primary { flex: 1; }
+      .form-grid, .match-list { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .detail-top { grid-template-columns: 1fr; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .detail-fact { border-right: 0; border-bottom: 1px solid var(--line); }
+      .modal-backdrop { padding: 0; align-items: end; }
+      .modal { border-radius: 20px 20px 0 0; max-height: 92vh; }
+      .modal-head, .modal-body { padding-left: 18px; padding-right: 18px; }
+      .modal-actions { flex-direction: column-reverse; }
+      .modal-actions .button { width: 100%; }
+      .toast { left: 14px; right: 14px; bottom: 78px; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegación principal">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">RZ</div>
+        <div><strong>Radar Zamora</strong><span>Oportunidades B2B</span></div>
+      </div>
+      <nav class="side-nav">
+        <button class="nav-button active" data-view="opportunities">Oportunidades</button>
+        <button class="nav-button" data-view="saved">Guardadas <span id="saved-count-side"></span></button>
+        <button class="nav-button" data-view="profile">Perfil del proveedor</button>
+      </nav>
+      <div class="profile-mini">
+        <strong id="mini-company">Transportes Encalada</strong>
+        <span id="mini-services">Maquinaria · Transporte</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-title"><strong>Zamora Chinchipe</strong> · Actualizado hace unos segundos</div>
+        <span class="demo-flag">● Datos de demostración</span>
+      </header>
+
+      <div class="content">
+        <section id="opportunities-view">
+          <div class="heading-row">
+            <div>
+              <h1 id="page-heading">Oportunidades para ti</h1>
+              <p class="lead" id="page-lead">Procesos que coinciden con los servicios y cantones de tu empresa.</p>
+            </div>
+            <button class="button" id="edit-profile-shortcut">Ajustar mi perfil</button>
+          </div>
+
+          <div class="summary" aria-label="Resumen de oportunidades">
+            <article class="summary-card"><div class="summary-label">Coincidencias activas</div><div class="summary-value" id="summary-active">0</div><div class="summary-note">según tu perfil</div></article>
+            <article class="summary-card"><div class="summary-label">Cierran en 48 horas</div><div class="summary-value" id="summary-urgent">0</div><div class="summary-note">requieren atención</div></article>
+            <article class="summary-card"><div class="summary-label">Valor referencial</div><div class="summary-value" id="summary-budget">$0</div><div class="summary-note">oportunidades mostradas</div></article>
+          </div>
+
+          <div class="toolbar" aria-label="Filtros">
+            <div class="input-wrap"><span class="search-glyph" aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Buscar maquinaria, entidad o servicio" aria-label="Buscar oportunidades"></div>
+            <select id="category-filter" aria-label="Filtrar por categoría"><option value="">Todas las categorías</option></select>
+            <select id="location-filter" aria-label="Filtrar por cantón"><option value="">Todos los cantones</option></select>
+            <select id="sort-filter" aria-label="Ordenar oportunidades"><option value="match">Mayor coincidencia</option><option value="deadline">Cierre más próximo</option><option value="budget">Mayor presupuesto</option></select>
+          </div>
+          <div class="results-line"><span id="results-label" aria-live="polite"></span><button class="button" id="clear-filters" hidden>Limpiar filtros</button></div>
+          <div class="opportunity-list" id="opportunity-list"></div>
+          <div class="empty" id="empty-state" hidden><h2>No encontramos coincidencias</h2><p>Prueba con otros filtros o agrega más servicios a tu perfil.</p><button class="button primary" id="empty-profile">Editar perfil</button></div>
+        </section>
+
+        <section id="profile-view" hidden>
+          <div class="heading-row"><div><h1>Perfil del proveedor</h1><p class="lead">Estos datos determinan qué oportunidades aparecen primero.</p></div></div>
+          <div class="profile-layout">
+            <form class="panel" id="profile-form">
+              <div class="form-grid">
+                <label class="field">Nombre comercial<input id="company-name" required maxlength="80"></label>
+                <label class="field">WhatsApp<input id="whatsapp" inputmode="tel" placeholder="09XXXXXXXX" pattern="[0-9+ ]{8,15}"></label>
+                <div class="field full"><span>Servicios que ofrece</span><div class="checks" id="service-checks"></div></div>
+                <div class="field full"><span>Cantones donde trabaja</span><div class="checks" id="location-checks"></div></div>
+              </div>
+              <div class="form-actions"><button class="button primary" type="submit">Guardar perfil</button></div>
+            </form>
+            <aside class="panel">
+              <h2>Perfil listo para validar</h2>
+              <p class="lead">Completa las capacidades básicas. La documentación empresarial vendrá después de comprobar que el radar genera interés.</p>
+              <div class="progress" aria-label="Perfil completado al 72%"><span></span></div>
+              <div class="info-list">
+                <div class="info-item"><strong>Matching inmediato</strong><span>El puntaje cambia al guardar tus servicios y cobertura.</span></div>
+                <div class="info-item"><strong>Privacidad simple</strong><span>En esta demo los datos solo se guardan en tu navegador.</span></div>
+                <div class="info-item"><strong>Próximo paso</strong><span>Conectar alertas reales de SERCOP y envíos por WhatsApp.</span></div>
+              </div>
+            </aside>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Navegación móvil">
+    <button class="active" data-view="opportunities">Oportunidades</button>
+    <button data-view="saved">Guardadas</button>
+    <button data-view="profile">Mi perfil</button>
+  </nav>
+
+  <div class="modal-backdrop" id="detail-modal" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <header class="modal-head"><div><h2 id="modal-title"></h2><p id="modal-entity"></p></div><button class="close" id="close-modal" aria-label="Cerrar detalle">×</button></header>
+      <div class="modal-body" id="modal-body"></div>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script>
+    (() => {
+      const categories = ["Maquinaria", "Transporte", "Construcción", "Tecnología", "Ferretería", "Alimentación"];
+      const locations = ["Zamora", "Yantzaza", "El Pangui", "Centinela del Cóndor", "Palanda", "Nangaritza"];
+      const now = Date.now();
+      const opportunities = [
+        { id: 1, title: "Alquiler de excavadora y retroexcavadora", entity: "GAD Municipal de Yantzaza · DEMO", category: "Maquinaria", location: "Yantzaza", budget: 97957, hours: 19, published: "Hoy, 08:20", description: "Servicio de maquinaria con operador para mantenimiento de vías rurales durante 240 horas.", requirements: ["Excavadora de orugas de 20 toneladas o superior", "Retroexcavadora con operador certificado", "Movilización incluida", "RUC y RUP habilitados"], tags: ["excavadora", "retroexcavadora", "vías"], new: true },
+        { id: 2, title: "Servicio de cuatro volquetas de 12 m³", entity: "Prefectura de Zamora Chinchipe · DEMO", category: "Transporte", location: "Zamora", budget: 48600, hours: 31, published: "Hoy, 09:05", description: "Transporte de material pétreo para mantenimiento vial, con conductor y combustible.", requirements: ["Cuatro volquetas mínimo 12 m³", "Matrículas y seguros vigentes", "Conductores con licencia tipo E", "Disponibilidad inmediata"], tags: ["volquetas", "transporte", "material pétreo"], new: true },
+        { id: 3, title: "Mantenimiento de equipo caminero", entity: "GAD Cantonal de El Pangui · DEMO", category: "Construcción", location: "El Pangui", budget: 18500, hours: 54, published: "Ayer, 16:40", description: "Mantenimiento preventivo y correctivo para motoniveladora, rodillo y cargadora frontal.", requirements: ["Taller o servicio móvil en la provincia", "Experiencia en maquinaria pesada", "Repuestos con garantía", "Informe técnico por equipo"], tags: ["mantenimiento", "maquinaria", "repuestos"], new: false },
+        { id: 4, title: "Suministro de lubricantes y filtros", entity: "Empresa pública provincial · DEMO", category: "Ferretería", location: "Zamora", budget: 12280, hours: 76, published: "Ayer, 11:15", description: "Adquisición de aceites, grasas, filtros de aire y combustible para flota institucional.", requirements: ["Distribuidor autorizado", "Entrega en bodega institucional", "Fichas técnicas de productos", "Garantía de procedencia"], tags: ["lubricantes", "filtros", "repuestos"], new: false },
+        { id: 5, title: "Camioneta doble cabina con conductor", entity: "Contratista minero local · DEMO", category: "Transporte", location: "Yantzaza", budget: 15600, hours: 27, published: "Hoy, 10:45", description: "Servicio por tres meses para traslado de personal técnico entre Yantzaza y Los Encuentros.", requirements: ["Camioneta 4x4 desde 2022", "Conductor con licencia profesional", "Seguro contra todo riesgo", "Disponibilidad de lunes a sábado"], tags: ["camioneta", "conductor", "minería"], new: true },
+        { id: 6, title: "Hosting, dominio, SSL y soporte técnico", entity: "GAD parroquial rural · DEMO", category: "Tecnología", location: "Palanda", budget: 3400, hours: 42, published: "Hoy, 07:30", description: "Renovación de infraestructura web y soporte para portales institucionales durante doce meses.", requirements: ["Hosting administrado", "Certificado SSL", "Copias de seguridad diarias", "Soporte con tiempo de respuesta definido"], tags: ["hosting", "ssl", "soporte"], new: true },
+        { id: 7, title: "Alimentación para cuadrilla de 35 personas", entity: "Constructora regional · DEMO", category: "Alimentación", location: "Nangaritza", budget: 8400, hours: 68, published: "Ayer, 14:10", description: "Desayuno, almuerzo y refrigerio durante veinte jornadas de trabajo en campo.", requirements: ["Transporte propio", "Registro sanitario aplicable", "Menú rotativo", "Facturación electrónica"], tags: ["catering", "alimentación", "campo"], new: false },
+        { id: 8, title: "Materiales para alcantarillado pluvial", entity: "GAD Municipal de Centinela del Cóndor · DEMO", category: "Ferretería", location: "Centinela del Cóndor", budget: 22750, hours: 91, published: "Hace 2 días", description: "Tubería, accesorios y materiales pétreos para una obra de drenaje urbano.", requirements: ["Entrega parcial programada", "Certificados de calidad", "Transporte incluido", "Stock disponible"], tags: ["tubería", "materiales", "alcantarillado"], new: false }
+      ].map(item => ({ ...item, deadline: now + item.hours * 3600000 }));
+
+      const defaultProfile = { company: "Transportes Encalada", whatsapp: "", services: ["Maquinaria", "Transporte"], locations: ["Zamora", "Yantzaza", "El Pangui"] };
+      let profile = load("rz-profile", defaultProfile);
+      let saved = new Set(load("rz-saved", []));
+      let currentView = "opportunities";
+      let lastFocus = null;
+
+      const $ = id => document.getElementById(id);
+      const money = value => new Intl.NumberFormat("es-EC", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
+      const deadlineText = item => {
+        if (item.hours < 24) return `Cierra en ${item.hours} h`;
+        const days = Math.floor(item.hours / 24), hours = item.hours % 24;
+        return `Cierra en ${days} d ${hours ? hours + " h" : ""}`.trim();
+      };
+      function load(key, fallback) { try { const value = JSON.parse(localStorage.getItem(key)); return value ?? fallback; } catch { return fallback; } }
+      function persist() { localStorage.setItem("rz-profile", JSON.stringify(profile)); localStorage.setItem("rz-saved", JSON.stringify([...saved])); }
+      function matchScore(item) {
+        const service = profile.services.includes(item.category);
+        const location = profile.locations.includes(item.location);
+        const base = 42 + (service ? 34 : 8) + (location ? 16 : 5) + (item.hours < 48 ? 4 : 0);
+        return Math.min(98, base);
+      }
+      function matchReasons(item) {
+        return [
+          { ok: profile.services.includes(item.category), text: profile.services.includes(item.category) ? `Ofreces ${item.category.toLowerCase()}` : `No registraste ${item.category.toLowerCase()}` },
+          { ok: profile.locations.includes(item.location), text: profile.locations.includes(item.location) ? `Trabajas en ${item.location}` : `${item.location} está fuera de tu cobertura` },
+          { ok: true, text: "Oportunidad dentro de Zamora Chinchipe" },
+          { ok: item.hours >= 24, text: item.hours >= 24 ? "Hay tiempo para preparar la oferta" : "Plazo de respuesta muy corto" }
+        ];
+      }
+
+      function setupOptions() {
+        categories.forEach(value => $("category-filter").insertAdjacentHTML("beforeend", `<option value="${value}">${value}</option>`));
+        locations.forEach(value => $("location-filter").insertAdjacentHTML("beforeend", `<option value="${value}">${value}</option>`));
+        $("service-checks").innerHTML = categories.map(value => `<label class="check-chip"><input type="checkbox" name="service" value="${value}"><span>${value}</span></label>`).join("");
+        $("location-checks").innerHTML = locations.map(value => `<label class="check-chip"><input type="checkbox" name="location" value="${value}"><span>${value}</span></label>`).join("");
+      }
+
+      function filteredItems() {
+        const query = $("search").value.trim().toLocaleLowerCase("es");
+        const category = $("category-filter").value;
+        const location = $("location-filter").value;
+        let items = opportunities.filter(item => {
+          const haystack = [item.title, item.entity, item.category, item.location, ...item.tags].join(" ").toLocaleLowerCase("es");
+          return (!query || haystack.includes(query)) && (!category || item.category === category) && (!location || item.location === location) && (currentView !== "saved" || saved.has(item.id));
+        });
+        const sort = $("sort-filter").value;
+        items.sort((a,b) => sort === "deadline" ? a.hours - b.hours : sort === "budget" ? b.budget - a.budget : matchScore(b) - matchScore(a));
+        return items;
+      }
+
+      function render() {
+        const items = filteredItems();
+        $("opportunity-list").innerHTML = items.map(item => {
+          const score = matchScore(item);
+          return `<article class="opportunity-card">
+            <div class="score" style="--score:${score}" aria-label="${score}% de coincidencia"><strong>${score}%</strong></div>
+            <div>
+              <div class="card-eyebrow"><span class="category">${item.category}</span>${item.new ? '<span class="new-badge">NUEVA</span>' : ''}</div>
+              <h2>${item.title}</h2><div class="entity">${item.entity}</div>
+              <div class="card-meta"><span><strong>${money(item.budget)}</strong> referencial</span><span>${item.location}</span><span class="deadline">${deadlineText(item)}</span></div>
+            </div>
+            <div class="card-actions">
+              <button class="button icon ${saved.has(item.id) ? "saved" : ""}" data-save="${item.id}" aria-label="${saved.has(item.id) ? "Quitar de guardadas" : "Guardar oportunidad"}" aria-pressed="${saved.has(item.id)}">${saved.has(item.id) ? "★" : "☆"}</button>
+              <button class="button primary" data-open="${item.id}">Ver oportunidad</button>
+            </div>
+          </article>`;
+        }).join("");
+        $("empty-state").hidden = items.length > 0;
+        $("opportunity-list").hidden = items.length === 0;
+        $("results-label").textContent = `${items.length} ${items.length === 1 ? "oportunidad" : "oportunidades"} encontradas`;
+        $("clear-filters").hidden = !($("search").value || $("category-filter").value || $("location-filter").value);
+        $("summary-active").textContent = items.filter(item => matchScore(item) >= 75).length;
+        $("summary-urgent").textContent = items.filter(item => item.hours <= 48).length;
+        $("summary-budget").textContent = money(items.reduce((sum,item) => sum + item.budget, 0));
+        document.querySelectorAll("[data-save]").forEach(button => button.addEventListener("click", () => toggleSave(Number(button.dataset.save))));
+        document.querySelectorAll("[data-open]").forEach(button => button.addEventListener("click", () => openDetail(Number(button.dataset.open), button)));
+        updateSavedCounts();
+      }
+
+      function toggleSave(id) {
+        if (saved.has(id)) { saved.delete(id); showToast("Oportunidad eliminada de guardadas"); }
+        else { saved.add(id); showToast("Oportunidad guardada"); }
+        persist(); render();
+      }
+
+      function openDetail(id, trigger) {
+        const item = opportunities.find(value => value.id === id);
+        if (!item) return;
+        lastFocus = trigger;
+        const score = matchScore(item);
+        $("modal-title").textContent = item.title;
+        $("modal-entity").textContent = item.entity;
+        $("modal-body").innerHTML = `
+          <div class="detail-top"><div class="detail-score"><strong>${score}%</strong><span>COINCIDENCIA</span></div><div><span class="category">${item.category}</span><p>${item.description}</p></div></div>
+          <div class="detail-grid"><div class="detail-fact"><span>Presupuesto</span><strong>${money(item.budget)}</strong></div><div class="detail-fact"><span>Ubicación</span><strong>${item.location}</strong></div><div class="detail-fact"><span>Fecha límite</span><strong class="deadline">${deadlineText(item)}</strong></div></div>
+          <h3 class="section-title">Requisitos principales</h3><ul class="requirement-list">${item.requirements.map(value => `<li>${value}</li>`).join("")}</ul>
+          <h3 class="section-title">Por qué coincide contigo</h3><div class="match-list">${matchReasons(item).map(value => `<div class="match-item ${value.ok ? "" : "miss"}">${value.ok ? "✓" : "!"} ${value.text}</div>`).join("")}</div>
+          <p class="lead" style="margin-top:22px">Proceso ficticio para probar el producto. La versión conectada mostrará la fuente oficial y los documentos descargables.</p>
+          <div class="modal-actions"><button class="button" id="modal-save">${saved.has(id) ? "Quitar de guardadas" : "Guardar"}</button><button class="button gold" id="prepare-offer">Preparar cotización</button></div>`;
+        $("detail-modal").hidden = false;
+        document.body.style.overflow = "hidden";
+        $("close-modal").focus();
+        $("modal-save").addEventListener("click", () => { toggleSave(id); closeModal(); });
+        $("prepare-offer").addEventListener("click", () => { closeModal(); showToast("Flujo validado: aquí se abrirá el checklist de documentos."); });
+      }
+
+      function closeModal() {
+        $("detail-modal").hidden = true;
+        document.body.style.overflow = "";
+        if (lastFocus) lastFocus.focus();
+      }
+
+      function setView(view) {
+        currentView = view;
+        const isProfile = view === "profile";
+        $("profile-view").hidden = !isProfile;
+        $("opportunities-view").hidden = isProfile;
+        document.querySelectorAll("[data-view]").forEach(button => button.classList.toggle("active", button.dataset.view === view));
+        if (isProfile) fillProfileForm();
+        else {
+          $("page-heading").textContent = view === "saved" ? "Oportunidades guardadas" : "Oportunidades para ti";
+          $("page-lead").textContent = view === "saved" ? "Tu lista corta para revisar y preparar cotizaciones." : "Procesos que coinciden con los servicios y cantones de tu empresa.";
+          render();
+        }
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function fillProfileForm() {
+        $("company-name").value = profile.company;
+        $("whatsapp").value = profile.whatsapp;
+        document.querySelectorAll('input[name="service"]').forEach(input => input.checked = profile.services.includes(input.value));
+        document.querySelectorAll('input[name="location"]').forEach(input => input.checked = profile.locations.includes(input.value));
+      }
+      function updateProfileSummary() {
+        $("mini-company").textContent = profile.company;
+        $("mini-services").textContent = profile.services.slice(0,2).join(" · ") || "Sin servicios configurados";
+      }
+      function updateSavedCounts() {
+        $("saved-count-side").textContent = saved.size ? `(${saved.size})` : "";
+      }
+      let toastTimer;
+      function showToast(message) {
+        clearTimeout(toastTimer); $("toast").textContent = message; $("toast").hidden = false;
+        toastTimer = setTimeout(() => $("toast").hidden = true, 3000);
+      }
+
+      setupOptions();
+      fillProfileForm();
+      updateProfileSummary();
+      render();
+      ["search", "category-filter", "location-filter", "sort-filter"].forEach(id => $(id).addEventListener(id === "search" ? "input" : "change", render));
+      document.querySelectorAll("[data-view]").forEach(button => button.addEventListener("click", () => setView(button.dataset.view)));
+      $("edit-profile-shortcut").addEventListener("click", () => setView("profile"));
+      $("empty-profile").addEventListener("click", () => setView("profile"));
+      $("clear-filters").addEventListener("click", () => { $("search").value = ""; $("category-filter").value = ""; $("location-filter").value = ""; render(); });
+      $("close-modal").addEventListener("click", closeModal);
+      $("detail-modal").addEventListener("click", event => { if (event.target === $("detail-modal")) closeModal(); });
+      document.addEventListener("keydown", event => { if (event.key === "Escape" && !$("detail-modal").hidden) closeModal(); });
+      $("profile-form").addEventListener("submit", event => {
+        event.preventDefault();
+        const services = [...document.querySelectorAll('input[name="service"]:checked')].map(input => input.value);
+        const coveredLocations = [...document.querySelectorAll('input[name="location"]:checked')].map(input => input.value);
+        if (!services.length || !coveredLocations.length) { showToast("Selecciona al menos un servicio y un cantón."); return; }
+        profile = { company: $("company-name").value.trim(), whatsapp: $("whatsapp").value.trim(), services, locations: coveredLocations };
+        persist(); updateProfileSummary(); showToast("Perfil guardado. Recalculamos tus coincidencias."); setView("opportunities");
+      });
+    })();
+  </script>
+</body>
+</html>
